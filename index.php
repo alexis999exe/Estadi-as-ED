@@ -15,7 +15,12 @@
         <img src="imagenes/LogoUTZMG.png" alt="Logo de la Universidad" class="logo">
         <h1>Encuesta de Evaluación Docente UTZMG</h1>
     </div>
+    <div class="usuario-header">
+        <span><?php echo htmlspecialchars($usuario); ?></span>
+        <a href="logout.php" class="logout">Cerrar sesión</a>
+    </div>
 </header>
+
 
 
     <main>

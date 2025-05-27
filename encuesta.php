@@ -57,8 +57,15 @@ $profesores = ["", "Mildred Green", "Cristina Moran", "Eva Lopez", "Brenda Maria
                     <?php endforeach; ?>
                 </div>
             <?php endforeach; ?>
-
+            
+            <!-- Campo para comentario adicional -->
+            <div class="comentario-final">
+                <p><strong>Comentario adicional (opcional):</strong></p>
+                <textarea name="comentario" rows="5" placeholder="Escribe aquí tus observaciones, sugerencias o comentarios sobre el profesor..."></textarea>
+            </div>
+            
             <button type="submit" class="btn-enviar">Enviar evaluación</button>
+            
         </form>
     </div>
     <footer class="form-footer">

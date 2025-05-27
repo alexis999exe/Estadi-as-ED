@@ -1,0 +1,91 @@
+body {
+    font-family: 'Century Gothic', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+}
+
+header {
+    background-color: #7e1f1f;
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between; /* logo + título a la izquierda, usuario a la derecha */
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.usuario-header {
+    font-size: 16px;
+}
+
+.usuario-header .logout {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+    background-color: #e74c3c;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.usuario-header .logout:hover {
+    background-color: #c0392b;
+}
+
+.admin-container {
+    display: flex;
+    height: calc(100vh - 80px); /* ajustar según altura del header */
+}
+
+.contenido-principal {
+    flex: 1;
+    padding: 40px;
+    background-color: #fff;
+}
+
+.menu-lateral {
+    width: 280px;
+    background-color: #eeeeee;
+    padding: 20px;
+    border-left: 2px solid #ccc;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+}
+
+.menu-lateral h3 {
+    margin-bottom: 20px;
+    font-size: 20px;
+    color: #333;
+}
+
+.menu-lateral ul {
+    list-style: none;
+    padding: 0;
+}
+
+.menu-lateral li {
+    margin-bottom: 15px;
+}
+
+.menu-lateral a {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.menu-lateral a:hover {
+    color: #0073e6;
+}
+
+/* Encabezado con logo y nombre */
+.contenedor-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo {
+    height: 100px;
+    width: auto;
+    object-fit: contain;
+}

@@ -87,3 +87,27 @@ footer {
     font-size: 14px;
 }
 
+.usuario-header {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+}
+
+.logout {
+    background-color: #e63946;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.logout:hover {
+    background-color: #b71c1c;
+}

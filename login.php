@@ -11,7 +11,7 @@
 <body class="login-body">
 
     <div class="login-container">
-        <img src="imagenes/logoUTZMG.png" alt="Logo de la Universidad" class="login-logo">
+        <img src="imagenes/LogoUTZMG.png" alt="Logo de la Universidad" class="login-logo">
 
         <h2 class="login-title">Iniciar Sesión</h2>
 
