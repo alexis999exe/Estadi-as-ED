@@ -36,6 +36,7 @@ $usuario = $_SESSION['usuario'] ?? 'Administrador';
                 <li><a href="modificar_encuesta.php">✏️ Modificar encuesta</a></li>
                 <li><a href="gestionar-prof.php">👨‍🏫 Gestionar profesores</a></li>
                 <li><a href="reportes.php">📊 Generar reportes</a></li>
+                <li><a href="progreso.php">✅ Progreso</a></li>
             </ul>
         </aside>
     </div>
