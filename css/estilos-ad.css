@@ -89,3 +89,19 @@ header {
     width: auto;
     object-fit: contain;
 }
+
+.btn-encuesta {
+    padding: 12px 20px;
+    font-size: 16px;
+    background-color: #0073e6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+}
+
+.btn-encuesta:hover {
+    background-color: #005bb5;
+}

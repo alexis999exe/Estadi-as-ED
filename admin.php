@@ -28,6 +28,8 @@ $usuario = $_SESSION['usuario'] ?? 'Administrador';
         <main class="contenido-principal">
             <h2>Bienvenido, <?php echo htmlspecialchars($usuario); ?> 👋</h2>
             <p>Utiliza el panel de la derecha para acceder a las herramientas administrativas.</p>
+            <div id="control-encuesta">
+            <button id="toggleEncuesta" class="btn-encuesta">Activar encuesta</button>
         </main>
 
         <aside class="menu-lateral">
@@ -40,6 +42,28 @@ $usuario = $_SESSION['usuario'] ?? 'Administrador';
             </ul>
         </aside>
     </div>
+    <script>
+    const btnEncuesta = document.getElementById('toggleEncuesta');
+    let encuestaActiva = false;
+
+    btnEncuesta.addEventListener('click', () => {
+        if (!encuestaActiva) {
+            const confirmar = confirm("¿Estás seguro de que deseas ACTIVAR la encuesta?");
+            if (confirmar) {
+                encuestaActiva = true;
+                btnEncuesta.textContent = "Desactivar encuesta";
+                alert("La encuesta ha sido activada.");
+            }
+        } else {
+            const confirmar = confirm("¿Estás seguro de que deseas DESACTIVAR la encuesta?");
+            if (confirmar) {
+                encuestaActiva = false;
+                btnEncuesta.textContent = "Activar encuesta";
+                alert("La encuesta ha sido desactivada.");
+            }
+        }
+    });
+</script>
 
 </body>
 </html>
