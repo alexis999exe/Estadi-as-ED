@@ -1,5 +1,24 @@
 <?php
-$profesores = ["", "Mildred Green", "Cristina Moran", "Eva Lopez", "Brenda Mariana Casillas"];
+// Conexión a la base de datos UTZMG
+$conexion = new mysqli("localhost", "root", "", "UTZMG");
+
+if ($conexion->connect_error) {
+    die("Error de conexión: " . $conexion->connect_error);
+}
+
+// Obtener profesores (id, nombres y apellidos)
+$sql = "SELECT id, nombres, apellidos FROM profesores";
+$resultado = $conexion->query($sql);
+
+$profesores = [];
+if ($resultado->num_rows > 0) {
+    while ($fila = $resultado->fetch_assoc()) {
+        $profesores[] = [
+            'id' => $fila['id'],
+            'nombre_completo' => $fila['nombres'] . ' ' . $fila['apellidos']
+        ];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -36,10 +55,10 @@ $profesores = ["", "Mildred Green", "Cristina Moran", "Eva Lopez", "Brenda Maria
         <select id="profesor" name="profesor" required>
             <option value="" disabled selected>Seleccione un profesor</option>
             <?php foreach ($profesores as $profesor): ?>
-                <?php if ($profesor !== ""): ?>
-                    <option value="<?= htmlspecialchars($profesor) ?>"><?= htmlspecialchars($profesor) ?></option>
-                <?php endif; ?>
-            <?php endforeach; ?>
+    <option value="<?= htmlspecialchars($profesor['id']) ?>">
+        <?= htmlspecialchars($profesor['nombre_completo']) ?>
+    </option>
+<?php endforeach; ?>
         </select>
 
         <?php
