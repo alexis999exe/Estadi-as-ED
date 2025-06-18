@@ -1,25 +1,41 @@
 <?php
-// Conexión a la base de datos UTZMG
-$conexion = new mysqli("localhost", "root", "", "UTZMG");
+// Datos de conexión a SQL Server
+$serverName = "localhost"; // o el nombre de tu instancia: "localhost\\SQLEXPRESS"
+$connectionInfo = array(
+    "Database" => "UTZMG",
+    "UID" => "",       // reemplaza con tu usuario de SQL Server
+    "PWD" => "",   // reemplaza con tu contraseña
+    "CharacterSet" => "UTF-8"
+);
 
-if ($conexion->connect_error) {
-    die("Error de conexión: " . $conexion->connect_error);
+// Establecer conexión
+$conexion = sqlsrv_connect($serverName, $connectionInfo);
+
+// Verificar la conexión
+if (!$conexion) {
+    die("Error de conexión: " . print_r(sqlsrv_errors(), true));
 }
 
 // Obtener profesores (id, nombres y apellidos)
-$sql = "SELECT id, nombres, apellidos FROM profesores";
-$resultado = $conexion->query($sql);
+$sql = "SELECT id, nombre, apellidos FROM profesores";
+$stmt = sqlsrv_query($conexion, $sql);
 
 $profesores = [];
-if ($resultado->num_rows > 0) {
-    while ($fila = $resultado->fetch_assoc()) {
+if ($stmt !== false) {
+    while ($fila = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
         $profesores[] = [
             'id' => $fila['id'],
-            'nombre_completo' => $fila['nombres'] . ' ' . $fila['apellidos']
+            'nombre_completo' => $fila['nombre'] . ' ' . $fila['apellidos']
         ];
     }
+} else {
+    echo "Error al ejecutar la consulta: " . print_r(sqlsrv_errors(), true);
 }
+
+// Cerrar la conexión si es necesario (opcional)
+// sqlsrv_close($conexion);
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>

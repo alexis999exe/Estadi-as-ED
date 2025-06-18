@@ -1,15 +1,21 @@
 <?php
-$host = "localhost";     // o 127.0.0.1
-$usuario = "root";       // usuario por defecto en XAMPP
-$contrasena = "";        // sin contraseña por defecto
-$baseDeDatos = "Profesores";  // nombre de tu base de datos
+$serverName = "localhost";  // doble backslash para instancia
+$connectionOptions = [
+    "Database" => "utzmg",         // nombre de tu base de datos
+    "Uid" => "",                   // usuario (si usas SQL Auth)
+    "PWD" => "",                   // contraseña (si usas SQL Auth)
+    "TrustServerCertificate" => true,  // para evitar error SSL
+    "Authentication" => 1          // 1 = Windows Authentication
+];
 
-$conexion = new mysqli($host, $usuario, $contrasena, $baseDeDatos);
+// Conexión con autenticación de Windows
+$conn = sqlsrv_connect($serverName, $connectionOptions);
 
-// Verificar conexión
-if ($conexion->connect_error) {
-    die("Conexión fallida: " . $conexion->connect_error);
+if ($conn === false) {
+    die(print_r(sqlsrv_errors(), true));
 } else {
-    echo "Conexión exitosa a la base de datos.";
+    echo "✅ Conexión exitosa a SQL Server.";
 }
 ?>
+
+
