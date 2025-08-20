@@ -24,366 +24,7 @@ $encuestaActiva = false; // Asumimos que inicialmente no está activa hasta que 
 <head>
     <meta charset="UTF-8">
     <title>Panel de Administración</title>
-    <link rel="stylesheet" href="css/estilos-ad.css">
-    <style>
-        /* Estilos generales del body y layout para el footer fijo */
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-
-        /* Header existente */
-        header {
-            background-color: #7e1f1f;
-            color: white;
-            padding: 15px 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap; /* Permite que el contenido se ajuste */
-        }
-
-        .contenedor-header {
-            display: flex;
-            align-items: center;
-            padding-left: 20px;
-        }
-
-        .contenedor-header .logo {
-            height: 80px;
-            margin-right: 15px;
-        }
-
-        .contenedor-header h1 {
-            margin: 0;
-            font-size: 2.2em;
-        }
-
-        .usuario-header {
-            display: flex;
-            align-items: center;
-            padding-right: 20px;
-        }
-
-        .usuario-header span {
-            margin-right: 15px;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .usuario-header .logout {
-            background-color: #f44336;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            transition: background-color 0.3s ease;
-        }
-
-        .usuario-header .logout:hover {
-            background-color: #da190b;
-        }
-
-        /* Contenido principal y menú lateral */
-        .admin-container {
-            display: flex;
-            flex-grow: 1; /* Permite que este contenedor ocupe el espacio disponible */
-            max-width: 1200px;
-            margin: 20px auto;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            overflow: hidden; /* Para que los bordes redondeados se apliquen bien */
-        }
-
-        .contenido-principal {
-            flex-grow: 1;
-            padding: 40px;
-            box-sizing: border-box;
-        }
-
-        .contenido-principal h2 {
-            color: #7e1f1f;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .contenido-principal p {
-            text-align: center;
-            margin-bottom: 40px;
-            font-size: 1.1em;
-            color: #555;
-        }
-
-        #control-encuesta {
-            text-align: center;
-            margin-top: 50px;
-        }
-
-        .btn-encuesta {
-            background-color: #4CAF50; /* Verde por defecto para "Activar" */
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.3em;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-
-        .btn-encuesta.active { /* Clase para cuando la encuesta esté activa (botón "Desactivar") */
-            background-color: #f44336; /* Rojo */
-        }
-
-        .btn-encuesta:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-        }
-
-        .menu-lateral {
-            width: 280px;
-            background-color: #f8f8f8;
-            padding: 40px 20px;
-            border-left: 1px solid #eee;
-            box-sizing: border-box;
-        }
-
-        .menu-lateral h3 {
-            color: #7e1f1f;
-            margin-top: 0;
-            margin-bottom: 30px;
-            text-align: center;
-            font-size: 1.5em;
-        }
-
-        .menu-lateral ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .menu-lateral ul li {
-            margin-bottom: 15px;
-        }
-
-        .menu-lateral ul li a {
-            display: block;
-            padding: 12px 15px;
-            background-color: #ececec;
-            color: #333;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: background-color 0.3s ease, color 0.3s ease;
-            font-size: 1.1em;
-        }
-
-        .menu-lateral ul li a:hover {
-            background-color: #7e1f1f;
-            color: white;
-        }
-
-        /* --- Estilos para la Modal (Ventana Emergente) --- */
-        .modal {
-            display: none; /* Oculto por defecto */
-            position: fixed; /* Posición fija para que cubra toda la pantalla */
-            z-index: 1000; /* Asegura que esté por encima de otros elementos */
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto; /* Habilita scroll si el contenido es demasiado grande */
-            background-color: rgba(0,0,0,0.4); /* Fondo semi-transparente oscuro */
-            justify-content: center; /* Centra el contenido de la modal horizontalmente */
-            align-items: center; /* Centra el contenido de la modal verticalmente */
-            animation-name: fadeIn;
-            animation-duration: 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from {opacity: 0;}
-            to {opacity: 1;}
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            padding: 30px;
-            border: 1px solid #888;
-            width: 90%; /* Ancho de la modal */
-            max-width: 500px; /* Ancho máximo para evitar que sea demasiado grande */
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            position: relative;
-            animation-name: animatetop;
-            animation-duration: 0.4s;
-        }
-
-        /* Animación para que la modal aparezca desde arriba */
-        @keyframes animatetop {
-            from {top: -300px; opacity: 0}
-            to {top: 0; opacity: 1}
-        }
-
-        .close-button {
-            color: #aaa;
-            font-size: 30px;
-            font-weight: bold;
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            cursor: pointer;
-        }
-
-        .close-button:hover,
-        .close-button:focus {
-            color: black;
-            text-decoration: none;
-        }
-
-        .modal-content h3 {
-            color: #7e1f1f;
-            text-align: center;
-            margin-bottom: 25px;
-            font-size: 1.8em;
-        }
-
-        .modal-form-group {
-            margin-bottom: 20px;
-        }
-
-        .modal-form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-            font-size: 1.1em;
-        }
-
-        .modal-form-group select,
-        .modal-form-group input[type="datetime-local"] {
-            width: calc(100% - 22px); /* Ancho completo menos padding y borde */
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1em;
-            background-color: #fefefe; /* Fondo blanco */
-        }
-
-        .modal-buttons {
-            text-align: right;
-            margin-top: 30px;
-        }
-
-        .modal-buttons .btn {
-            margin-left: 10px;
-            padding: 10px 20px; /* Ajuste para botones dentro de la modal */
-            font-size: 1.1em;
-        }
-
-        /* Estilos específicos para el botón de la modal */
-        .btn-modal-confirm {
-            background-color: #4CAF50; /* Verde */
-            color: white;
-        }
-        .btn-modal-confirm:hover {
-            background-color: #45a049;
-        }
-
-        .btn-modal-cancel {
-            background-color: #f44336; /* Rojo */
-            color: white;
-        }
-        .btn-modal-cancel:hover {
-            background-color: #da190b;
-        }
-
-        /* Footer */
-        footer {
-            background-color: #7e1f1f;
-            color: white;
-            text-align: center;
-            padding: 20px 0;
-            margin-top: auto; /* Empuja el footer hacia abajo */
-            font-size: 0.9em;
-            box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
-        }
-
-
-        /* --- Media Queries para responsividad --- */
-
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                padding-top: 10px;
-                padding-bottom: 10px;
-            }
-            .contenedor-header, .usuario-header {
-                padding: 0 15px;
-                width: 100%;
-                justify-content: center; /* Centra el logo y el título en móvil */
-                margin-bottom: 10px;
-            }
-            .contenedor-header h1 {
-                font-size: 1.8em;
-                text-align: center;
-            }
-            .usuario-header span, .usuario-header .logout {
-                font-size: 1em;
-            }
-            .admin-container {
-                flex-direction: column;
-                margin: 15px;
-                box-shadow: none; /* Quita la sombra en móvil para menos 'peso' */
-            }
-            .contenido-principal {
-                padding: 20px;
-            }
-            .menu-lateral {
-                width: 100%;
-                border-left: none;
-                border-top: 1px solid #eee;
-                padding: 20px;
-            }
-            .menu-lateral ul li a {
-                font-size: 1em;
-                padding: 10px;
-            }
-            .btn-encuesta {
-                padding: 12px 25px;
-                font-size: 1.1em;
-            }
-            .modal-content {
-                width: 95%; /* Hace la modal casi de ancho completo en móviles */
-                padding: 15px;
-            }
-            .modal-form-group select,
-            .modal-form-group input[type="datetime-local"] {
-                 width: calc(100% - 20px); /* Ajuste del ancho para inputs en móviles */
-            }
-        }
-
-        @media (max-width: 480px) {
-            .contenedor-header .logo {
-                height: 60px;
-                margin-right: 10px;
-            }
-            .contenedor-header h1 {
-                font-size: 1.6em;
-            }
-            .contenido-principal h2 {
-                font-size: 1.5em;
-            }
-            .contenido-principal p {
-                font-size: 0.95em;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="css/estilos-adm.css">
 </head>
 <body>
 
@@ -413,6 +54,7 @@ $encuestaActiva = false; // Asumimos que inicialmente no está activa hasta que 
     <aside class="menu-lateral">
         <h3>Opciones</h3>
         <ul>
+            <li><a href="#" onclick="openCreateSurveyModal(); return false;">✨ Crear nueva encuesta</a></li>
             <li><a href="modificar_encuesta.php">✏️ Modificar encuesta</a></li>
             <li><a href="reportes.php">📊 Generar reportes</a></li>
             <li><a href="progreso.php">✅ Progreso</a></li>
@@ -426,7 +68,8 @@ $encuestaActiva = false; // Asumimos que inicialmente no está activa hasta que 
         <span class="close-button" onclick="closeModal('configEncuestaModal')">&times;</span>
         <h3>Configurar Activación de Encuesta</h3>
         <form id="formConfigEncuesta" action="procesar_activacion_encuesta.php" method="POST">
-            <input type="hidden" name="action" id="modalAction" value=""> <div id="activateFields">
+            <input type="hidden" name="action" id="modalAction" value="">
+            <div id="activateFields">
                 <div class="modal-form-group">
                     <label for="ciclo">Ciclo de la Encuesta:</label>
                     <select id="ciclo" name="ciclo" required>
@@ -455,6 +98,40 @@ $encuestaActiva = false; // Asumimos que inicialmente no está activa hasta que 
     </div>
 </div>
 
+<div id="createSurveyModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal('createSurveyModal')">&times;</span>
+        <h3>Crear Nueva Encuesta</h3>
+        <form id="formCreateSurvey" action="procesar_creacion_encuesta.php" method="POST">
+            <div class="modal-form-group">
+                <label for="surveyTitle">Título de la Encuesta:</label>
+                <input type="text" id="surveyTitle" name="titulo" required placeholder="Ej: Encuesta de Satisfacción Docente 2025M">
+            </div>
+
+            <div class="modal-form-group">
+                <label for="surveyDescription">Descripción:</label>
+                <textarea id="surveyDescription" name="descripcion" rows="4" placeholder="Breve descripción de la encuesta."></textarea>
+            </div>
+
+            <div class="modal-form-group">
+                <label for="createSurveyCiclo">Ciclo al que aplica:</label>
+                <select id="createSurveyCiclo" name="ciclo" required>
+                    <option value="">Selecciona un ciclo</option>
+                    <?php foreach ($ciclos_disponibles as $ciclo): ?>
+                        <option value="<?php echo htmlspecialchars($ciclo); ?>"><?php echo htmlspecialchars($ciclo); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="modal-buttons">
+                <button type="submit" class="btn btn-modal-confirm">Guardar Encuesta</button>
+                <button type="button" class="btn btn-modal-cancel" onclick="closeModal('createSurveyModal')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
 <footer>
     Universidad Tecnológica de la Zona Metropolitana de Guadalajara © 2025
 </footer>
@@ -467,14 +144,14 @@ $encuestaActiva = false; // Asumimos que inicialmente no está activa hasta que 
     const deactivateMessage = document.getElementById('deactivateMessage');
     const modalSubmitButton = document.getElementById('modalSubmitButton');
 
+    // Nueva variable para la modal de creación de encuestas
+    const createSurveyModal = document.getElementById('createSurveyModal');
+
     // Estado inicial de la encuesta, cargado desde PHP
     let encuestaActiva = <?php echo json_encode($encuestaActiva); ?>;
 
-    // Función para abrir la modal
+    // Función para abrir la modal de Activar/Desactivar
     function openModal(actionType) {
-        // Limpiar estilos previos del botón (no necesario aquí, pero buena práctica si hubiera más interacción)
-        // btnEncuesta.classList.remove('active'); // Esto se maneja en setInitialButtonState
-
         if (actionType === 'activate') {
             modalAction.value = 'activate';
             configEncuestaModal.querySelector('h3').textContent = 'Configurar Activación de Encuesta';
@@ -506,12 +183,20 @@ $encuestaActiva = false; // Asumimos que inicialmente no está activa hasta que 
         configEncuestaModal.style.display = 'flex'; // Usar flex para centrar
     }
 
-    // Función para cerrar la modal
+    // NUEVA FUNCIÓN: para abrir la modal de Crear Nueva Encuesta
+    function openCreateSurveyModal() {
+        createSurveyModal.style.display = 'flex'; // Muestra la nueva modal
+        // Puedes resetear el formulario aquí si es necesario
+        document.getElementById('formCreateSurvey').reset();
+    }
+
+
+    // Función para cerrar cualquier modal
     function closeModal(modalId) {
         document.getElementById(modalId).style.display = 'none';
     }
 
-    // Event listener para el botón principal de la encuesta
+    // Event listener para el botón principal de la encuesta (Activar/Desactivar)
     btnEncuesta.addEventListener('click', () => {
         if (!encuestaActiva) {
             openModal('activate'); // Si no está activa, abrir modal para activar
@@ -524,6 +209,10 @@ $encuestaActiva = false; // Asumimos que inicialmente no está activa hasta que 
     window.onclick = function(event) {
         if (event.target == configEncuestaModal) {
             closeModal('configEncuestaModal');
+        }
+        // Añadir el listener para la nueva modal
+        if (event.target == createSurveyModal) {
+            closeModal('createSurveyModal');
         }
     }
 

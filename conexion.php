@@ -1,21 +1,15 @@
 <?php
-$serverName = "localhost";  // doble backslash para instancia
-$connectionOptions = [
-    "Database" => "utzmg",         // nombre de tu base de datos
-    "Uid" => "",                   // usuario (si usas SQL Auth)
-    "PWD" => "",                   // contraseña (si usas SQL Auth)
-    "TrustServerCertificate" => true,  // para evitar error SSL
-    "Authentication" => 1          // 1 = Windows Authentication
-];
+$serverName = "localhost";
+$connectionInfo = array(
+    "Database" => "utsyn",
+    "UID" => "",         // ← pon tu usuario de SQL Server
+    "PWD" => "",      // ← pon tu contraseña
+    "CharacterSet" => "UTF-8"
+);
 
-// Conexión con autenticación de Windows
-$conn = sqlsrv_connect($serverName, $connectionOptions);
+$conexion = sqlsrv_connect($serverName, $connectionInfo);
 
-if ($conn === false) {
-    die(print_r(sqlsrv_errors(), true));
-} else {
-    echo "✅ Conexión exitosa a SQL Server.";
+if (!$conexion) {
+    die("❌ Error al conectar a la base de datos: " . print_r(sqlsrv_errors(), true));
 }
 ?>
-
-

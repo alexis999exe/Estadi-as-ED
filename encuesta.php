@@ -1,40 +1,50 @@
 <?php
-// Datos de conexión a SQL Server
-$serverName = "localhost"; // o el nombre de tu instancia: "localhost\\SQLEXPRESS"
-$connectionInfo = array(
-    "Database" => "UTZMG",
-    "UID" => "",       // reemplaza con tu usuario de SQL Server
-    "PWD" => "",   // reemplaza con tu contraseña
-    "CharacterSet" => "UTF-8"
-);
+require_once 'conexion.php';            // conexión a base de datos escolar
+require_once 'conexion3.php';   // conexión a base de datos encuesta
+session_start();
 
-// Establecer conexión
-$conexion = sqlsrv_connect($serverName, $connectionInfo);
+$matricula = $_SESSION['matricula'];
 
-// Verificar la conexión
-if (!$conexion) {
-    die("Error de conexión: " . print_r(sqlsrv_errors(), true));
+// ✅ Consulta para obtener profesores del alumno
+$sql = "SELECT DISTINCT idProfesor, nombreProfesor 
+FROM valumno_materia 
+WHERE matricula = ?";
+
+$params = array($matricula);
+$stmt = sqlsrv_query($conexion, $sql, $params);
+
+if ($stmt === false) {
+    die("❌ Error al ejecutar la consulta: " . print_r(sqlsrv_errors(), true));
 }
 
-// Obtener profesores (id, nombres y apellidos)
-$sql = "SELECT id, nombre, apellidos FROM profesores";
-$stmt = sqlsrv_query($conexion, $sql);
-
+// ✅ Guardamos los profesores en un arreglo
 $profesores = [];
-if ($stmt !== false) {
-    while ($fila = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-        $profesores[] = [
-            'id' => $fila['id'],
-            'nombre_completo' => $fila['nombre'] . ' ' . $fila['apellidos']
-        ];
-    }
-} else {
-    echo "Error al ejecutar la consulta: " . print_r(sqlsrv_errors(), true);
+while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+    $profesores[] = [
+    'id' => $row['idProfesor'],   // ✅ ahora es entero
+    'nombre_completo' => $row['nombreProfesor']
+];
+
 }
 
-// Cerrar la conexión si es necesario (opcional)
-// sqlsrv_close($conexion);
+// ✅ Consultamos preguntas desde la base de datos encuesta
+$sqlPreguntas = "SELECT cvidPregunta, pregunta FROM CvPregunta WHERE activo = 1 ORDER BY prioridad";
+$stmtPreguntas = sqlsrv_query($conexion_encuesta, $sqlPreguntas);
+
+if ($stmtPreguntas === false) {
+    die("❌ Error al cargar preguntas: " . print_r(sqlsrv_errors(), true));
+}
+
+$preguntas_bd = [];
+while ($row = sqlsrv_fetch_array($stmtPreguntas, SQLSRV_FETCH_ASSOC)) {
+    $preguntas_bd[] = [
+        'id' => $row['cvidPregunta'],
+        'texto' => $row['pregunta']
+    ];
+}
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -71,165 +81,58 @@ if ($stmt !== false) {
         <select id="profesor" name="profesor" required>
             <option value="" disabled selected>Seleccione un profesor</option>
             <?php foreach ($profesores as $profesor): ?>
-    <option value="<?= htmlspecialchars($profesor['id']) ?>">
-        <?= htmlspecialchars($profesor['nombre_completo']) ?>
-    </option>
-<?php endforeach; ?>
+                <option value="<?= htmlspecialchars($profesor['id']) ?>">
+                    <?= htmlspecialchars($profesor['nombre_completo']) ?>
+                </option>
+            <?php endforeach; ?>
         </select>
 
         <?php
-        $preguntas = [
-            "Evaluación del Profesor" => [
-                [
-                    "texto" => "1. El profesor presentó el encuadre de la materia (planeación del curso, objetivos y criterios de evaluación, reglas y acuerdo de voluntades) y lo dejó disponible para su consulta en una plataforma de aprendizaje (Classroom, Moodle, otras).",
-                    "ponderaciones" => [7, 8, 9, 10]
-                ],
-                [
-                    "texto" => "2. El profesor asiste puntualmente a clases e imparte la sesión completa.",
-                    "ponderaciones" => [7, 8, 9, 10]
-                ],
-                [
-                    "texto" => "3. El profesor sigue la planeación del curso.",
-                    "ponderaciones" => [7, 8, 9, 10]
-                ],
-                [
-                    "texto" => "4. El profesor respeta los criterios de evaluación establecidos al inicio del curso.",
-                    "ponderaciones" => [7, 8, 9, 10]
-                ],
-            ],
-            "Enseñanza-Aprendizaje" => [
-                [
-                    "texto" => "5. El profesor domina los temas de la asignatura y los explica de forma clara y comprensible.",
-                    "ponderaciones" => [7, 8, 9, 10]
-                ],
-                [
-                    "texto" => "6. El profesor utiliza métodos y estrategias que facilitan el aprendizaje.",
-                    "ponderaciones" => [7, 8, 9, 10]
-                ],
-                [
-                    "texto" => "7. El profesor fomenta la participación de los estudiantes en clase.",
-                    "ponderaciones" => [7, 8, 9, 10]
-                ],
-                [
-                    "texto" => "8. Durante el curso, se realizaron actividades prácticas y análisis de ejemplos que aportaron al saber hacer.",
-                    "ponderaciones" => [7, 8, 9, 10]
-                ],
-                [
-                    "texto" => "9. Durante el cuatrimestre, utilizaste herramientas tecnológicas que fomentaron tu aprendizaje.",
-                    "ponderaciones" => [7, 8, 9, 10]
-                ],
-            ],
-            "Juicio del Estudiante" => [
-                [
-                    "texto" => "10. El profesor mantiene una comunicación clara y respetuosa con los estudiantes.",
-                    "ponderaciones" => [7, 8, 9, 10]
-                ],
-                [
-                    "texto" => "11. ¿Tomarías otra materia con este profesor?",
-                    "opciones" => ["Sí", "No"]
-                ]
-            ]
-        ];
-
-        $opciones_texto = [
-            "1" => [
-                "Lo presentó de manera limitada o no lo dejó disponible.",
-                "Lo presentó, pero no lo dejó disponible en línea.",
-                "Lo presentó claramente y lo dejó disponible.",
-                "Lo presentó de forma clara, accesible y lo explicó detalladamente."
-            ],
-            "2" => [
-                "Frecuentemente llega tarde, se retira antes de tiempo o falta sin aviso.",
-                "En ocasiones llega tarde o se retira antes, pero asiste regularmente.",
-                "Es puntual en la mayoría de las clases y generalmente imparte la sesión completa.",
-                "Siempre es puntual, cumple con su horario e imparte la sesión completa."
-            ],
-            "3" => [
-                "Se desvía constantemente del plan de curso.",
-                "Hace ajustes menores, pero sin justificar.",
-                "Sigue la planeación con ajustes mínimos y justificados.",
-                "Sigue rigurosamente la planeación del curso."
-            ],
-            "4" => [
-                "Hubo cambios en los criterios sin aviso o justificación clara.",
-                "Se realizaron ajustes menores, pero sin justificar.",
-                "Se respetaron los criterios con ajustes mínimos y justificados.",
-                "Se respetaron completamente los criterios establecidos."
-            ],
-            "5" => [
-                "No domina ni explica con claridad.",
-                "Domina el tema, pero en ocasiones se necesita mayor claridad.",
-                "Domina el tema, explica bien, pero no resuelve todas las dudas.",
-                "Domina el tema, explica de forma clara y resuelve las dudas que surgen."
-            ],
-            "6" => [
-                "Utiliza pocos métodos y estos no facilitan el aprendizaje.",
-                "Usa algunas estrategias, pero no en todos los temas.",
-                "Utiliza métodos variados que facilitan el aprendizaje.",
-                "Sus métodos son efectivos y facilitan el aprendizaje de manera significativa."
-            ],
-            "7" => [
-                "No fomenta la participación o solo unos pocos participan.",
-                "Motiva la participación, pero de forma limitada.",
-                "Fomenta la participación de la mayoría de los estudiantes.",
-                "Genera un ambiente en el que todos participan activamente."
-            ],
-            "8" => [
-                "Hubo pocas actividades prácticas y análisis de ejemplos.",
-                "Se realizaron algunas actividades prácticas y análisis de ejemplos, pero pudieron ser más.",
-                "Se realizaron varias actividades prácticas y análisis de ejemplos bien estructurados.",
-                "Hubo muchas actividades prácticas y análisis de ejemplos que facilitaron el aprendizaje."
-            ],
-            "9" => [
-                "No pude utilizar herramientas tecnológicas.",
-                "Utilicé algunas herramientas, pero de forma limitada.",
-                "Utilicé herramientas tecnológicas que enriquecieron mi aprendizaje.",
-                "Pude integrar herramientas innovadoras de manera efectiva."
-            ],
-            "10" => [
-                "A veces la comunicación no es clara o el trato no es respetuoso.",
-                "Generalmente mantiene un trato respetuoso y se comunica bien, aunque ocasionalmente puede haber malentendidos o falta de claridad.",
-                "Se comunica de manera clara y respetuosa con todos los alumnos.",
-                "La comunicación es excelente, clara y respetuosa en todo momento."
-            ]
-        ];
-
         $contador = 1;
-        foreach ($preguntas as $seccion => $bloque) {
-            echo "<h3>$seccion</h3>";
-            foreach ($bloque as $pregunta) {
-                echo '<div class="pregunta">';
-                echo "<p><strong>{$pregunta['texto']}</strong></p>";
-                echo "<div class='opciones'>";
-                if (isset($pregunta['ponderaciones'])) {
-                    $texto_opciones = $opciones_texto[$contador];
-                    foreach ($pregunta['ponderaciones'] as $i => $valor) {
-                        echo "<div class='opcion'>";
-                        echo "<label>";
-                        echo "<input type='radio' name='pregunta{$contador}' value='$valor' required> " . $texto_opciones[$i];
-                        echo "</label>";
-                        echo "</div>";
-                    }
-                } else {
-                    foreach ($pregunta['opciones'] as $opcion) {
-                        echo "<div class='opcion'>";
-                        echo "<label>";
-                        echo "<input type='radio' name='pregunta{$contador}' value='" . htmlspecialchars($opcion) . "' required> $opcion";
-                        echo "</label>";
-                        echo "</div>";
-                    }
-                }
-                echo "</div>";
-                echo '</div>';
-                $contador++;
-            }
+       foreach ($preguntas_bd as $index => $pregunta) {
+    echo '<div class="pregunta">';
+    echo "<p><strong>" . htmlspecialchars($pregunta['texto']) . "</strong></p>";
+
+    // Si la pregunta es la del comentario, poner textarea
+    if (strpos(strtolower($pregunta['texto']), 'comentario') !== false) {
+        echo "<textarea name='pregunta{$pregunta['id']}' rows='4' cols='60' placeholder='Escribe aquí tu comentario...'></textarea>";
+    } else {
+        echo "<div class='opciones'>";
+
+        // Calcular IDs de respuesta para esta pregunta
+        $inicio = 77 + ($index * 4);
+        $fin = $inicio + 3;
+
+        $sqlRespuestas = "SELECT cvidTipoRespuesta, descripcionRespuesta 
+                          FROM CvTipoRespuesta 
+                          WHERE activo = 1 AND cvidTipoRespuesta BETWEEN ? AND ?";
+        $paramsResp = array($inicio, $fin);
+        $stmtRespuestas = sqlsrv_query($conexion_encuesta, $sqlRespuestas, $paramsResp);
+
+        if ($stmtRespuestas === false) {
+            die("❌ Error al cargar respuestas: " . print_r(sqlsrv_errors(), true));
         }
+
+        while ($row = sqlsrv_fetch_array($stmtRespuestas, SQLSRV_FETCH_ASSOC)) {
+            echo "<div class='opcion'>";
+            echo "<label>";
+            echo "<input type='radio' name='pregunta{$pregunta['id']}' value='{$row['cvidTipoRespuesta']}' required> " 
+                 . htmlspecialchars($row['descripcionRespuesta']);
+            echo "</label>";
+            echo "</div>";
+        }
+
+        echo "</div>";
+    }
+
+    echo "</div>";
+}
+
+
         ?>
 
-        <div class="comentario-final">
-            <p><strong> ¿Te gustaría incluir un comentario, felicitación o recomendación para el profesor?</strong></p>
-            <textarea name="comentario" rows="5" placeholder="Escribe aquí tus observaciones, sugerencias o comentarios sobre el profesor..."></textarea>
-        </div>
+         
+
 
         <button type="submit" class="btn-enviar">Enviar evaluación</button>
 
